@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="Une image plein écran avec la musique Fortnite OG en boucle.">
+  <title>Fortnite OG — boucle</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #080808; }
+    body { width: 100vw; height: 100vh; height: 100dvh; }
+    .scene { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; }
+    .scene-image { display: block; width: 100%; height: 100%; object-fit: fill; }
+    .music-toggle {
+      position: fixed; z-index: 2; left: 50%; bottom: max(20px, env(safe-area-inset-bottom));
+      transform: translateX(-50%); min-height: 50px; padding: 0 20px;
+      border: 1px solid #ffffffa6; border-radius: 999px;
+      color: #fff; background: #111c; backdrop-filter: blur(12px);
+      font: 600 15px/1 system-ui, sans-serif; cursor: pointer;
+      box-shadow: 0 4px 22px #0006; -webkit-tap-highlight-color: transparent;
+    }
+    .music-toggle:hover { background: #111e; }
+    .music-toggle:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+    .music-toggle:disabled { cursor: wait; opacity: .8; }
+    #youtube-player {
+      position: fixed; left: -220px; top: 0; width: 200px; height: 200px;
+      overflow: hidden; opacity: .001; pointer-events: none;
+    }
+    @media (max-width: 480px) {
+      .music-toggle { min-height: 48px; padding-inline: 18px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene">
+    <img class="scene-image" src="assets/image.jpg" alt="">
+  </main>
+  <button id="music-toggle" class="music-toggle" type="button" aria-pressed="false" disabled>
+    Chargement de la musique…
+  </button>
+  <div id="youtube-player" aria-hidden="true"></div>
+  <script>
+    const videoId = "Ow2eSjJR6TA";
+    const button = document.getElementById("music-toggle");
+    let player;
+    let soundEnabled = false;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player("youtube-player", {
+        width: "200",
+        height: "200",
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          loop: 1,
+          playlist: videoId,
+          playsinline: 1,
+          rel: 0
+        },
+        events: {
+          onReady(event) {
+            event.target.mute();
+            event.target.playVideo();
+            button.disabled = false;
+            button.textContent = "▶ Activer la musique";
+          },
+          onError() {
+            button.disabled = false;
+            button.textContent = "↗ Ouvrir la vidéo sur YouTube";
+            button.onclick = () => window.open("https://www.youtube.com/watch?v=" + videoId, "_blank", "noopener");
+          }
+        }
+      });
+    }
+
+    button.addEventListener("click", () => {
+      if (!player) return;
+      if (!soundEnabled) {
+        soundEnabled = true;
+        player.unMute();
+        player.setVolume(100);
+        player.playVideo();
+        button.setAttribute("aria-pressed", "true");
+        button.textContent = "⏸ Mettre en pause";
+        return;
+      }
+      if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+        button.textContent = "▶ Reprendre la musique";
+      } else {
+        player.unMute();
+        player.setVolume(100);
+        player.playVideo();
+        button.textContent = "⏸ Mettre en pause";
+      }
+    });
+
+    const api = document.createElement("script");
+    api.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(api);
+  </script>
+</body>
+</html>
