@@ -25,9 +25,26 @@
   <div id="youtube-player" aria-hidden="true"></div>
   <script>
     const videoId = "Ow2eSjJR6TA";
+    const activationEvents = ["pointerdown", "touchstart", "keydown", "click"];
+    let player;
+    let playerReady = false;
+
+    function activateSound() {
+      if (!playerReady || !player) return;
+      player.unMute();
+      player.setVolume(100);
+      if (player.getPlayerState() !== YT.PlayerState.PLAYING) player.playVideo();
+      for (const eventName of activationEvents) {
+        window.removeEventListener(eventName, activateSound, true);
+      }
+    }
+
+    for (const eventName of activationEvents) {
+      window.addEventListener(eventName, activateSound, true);
+    }
 
     function onYouTubeIframeAPIReady() {
-      new YT.Player("youtube-player", {
+      player = new YT.Player("youtube-player", {
         width: "200",
         height: "200",
         videoId,
@@ -43,9 +60,10 @@
         },
         events: {
           onReady(event) {
-            event.target.unMute();
-            event.target.setVolume(100);
-            event.target.playVideo();
+            player = event.target;
+            playerReady = true;
+            player.setVolume(100);
+            player.playVideo();
           }
         }
       });
